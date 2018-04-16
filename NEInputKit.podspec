@@ -21,7 +21,7 @@ Pod::Spec.new do |s|
 textField和textView的封装.
                        DESC
 
-  s.homepage         = 'https://github.com/zhangyinglong/ZYLDataBase.git'
+  s.homepage         = 'https://github.com/Alienchang/NEInputKit.git'
   s.license          = 'MIT'
   s.author           = { 'liuchang' => '1217493217@qq.com' }
   s.source           = { :git => 'https://github.com/Alienchang/NEInputKit.git', :tag => s.version.to_s }
@@ -29,8 +29,8 @@ textField和textView的封装.
   s.module_name = 'NEInputKit'
   s.requires_arc          = true
   s.ios.deployment_target = '9.0'
-  s.source_files = 'Class/**/*.{h,m,mm}'
-  s.public_header_files = 'Class/**/*.h'
+  s.source_files = 'Classes/**/*.{h,m,mm}'
+  s.public_header_files = 'Classes/**/*.h'
 
   # s.frameworks = 'Security'
 end
