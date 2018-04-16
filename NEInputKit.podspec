@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
 #   * Finally, don't worry about the indent, CocoaPods strips it!
 
   s.description      = <<-DESC
-textField和textView的封装.
+textField和textView的封装，包括限制字符串长度.
                        DESC
 
   s.homepage         = 'https://github.com/Alienchang/NEInputKit.git'
