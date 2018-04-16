@@ -34,7 +34,7 @@
 
 #pragma mark -- observer
 - (void)textFieldTextDidChange:(NSNotification *)notification {
-    if ([notification.object isKindOfClass:[UITextField class]]) {
+    if ([notification.object isMemberOfClass:[NETextField class]]) {
         UITextField *textField = notification.object;
         NSString *currentText  = textField.text;
         NSInteger maxLength    = self.limitedNumber;
@@ -109,4 +109,25 @@
     }
     return YES;
 }
+
+// 解决iOS 11.2 textfield内存泄漏问题
+- (void)didMoveToWindow {
+    [super didMoveToWindow];
+    if (@available(iOS 11.2, *)) {
+        NSString *keyPath = @"textContentView.provider";
+        @try {
+            if (self.window) {
+                id provider = [self valueForKeyPath:keyPath];
+                if (!provider && self) {
+                    [self setValue:self forKeyPath:keyPath];
+                }
+            } else {
+                [self setValue:nil forKeyPath:keyPath];
+            }
+        } @catch (NSException *exception) {
+            NSLog(@"%@", exception);
+        }
+    }
+}
+
 @end
