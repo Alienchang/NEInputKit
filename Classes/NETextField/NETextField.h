@@ -10,7 +10,8 @@
 
 typedef enum : NSUInteger {
     NETextFieldContentTypeDefault,
-    NETextFieldContentTypeNumber,
+    NETextFieldContentTypeNumber,           // 只有数字
+    NETextFieldContentTypeToupper,          // 所有字母转大写
 } NETextFieldContentType;
 
 @interface NETextField : UITextField

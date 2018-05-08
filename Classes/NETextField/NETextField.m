@@ -39,46 +39,52 @@
         NSString *currentText  = textField.text;
         NSInteger maxLength    = self.limitedNumber;
         NSString *lang = [textField.textInputMode primaryLanguage];
-        
+
         if (self.deleteBlankSpace) {
             currentText = [currentText stringByReplacingOccurrencesOfString:@" " withString:@""];
         }
-        
+
         if (self.contentType == NETextFieldContentTypeNumber) {
             if (![self isPureInt:currentText]) {
                 textField.text = nil;
                 return;
             }
+        } else if (self.contentType == NETextFieldContentTypeToupper) {
+            currentText = [currentText uppercaseString];
+        }
+
+        // 中文输入
+//        if ([lang containsString:@"zh-"]) {
+//            // 获取高亮部分
+//
+//        }
+//        // 中文输入法以外的直接对其统计限制即可，不考虑其他语种情况
+//        else {
+//            if (currentText.length > maxLength) {
+//                NSRange rangeIndex = [currentText rangeOfComposedCharacterSequenceAtIndex:maxLength];
+//                if (rangeIndex.length == 1) {
+//                    textField.text = [currentText substringToIndex:maxLength];
+//                } else {
+//                    NSRange rangeRange = [currentText rangeOfComposedCharacterSequencesForRange:NSMakeRange(0, maxLength)];
+//                    textField.text = [currentText substringWithRange:rangeRange];
+//                }
+//            } else {
+//                textField.text = currentText;
+//            }
+//        }
+        
+        UITextRange *selectedRange = [textField markedTextRange];
+        UITextPosition *position = [textField positionFromPosition:selectedRange.start offset:0];
+        
+        // 没有高亮选择的字，则对已输入的文字进行字数统计和限制
+        if (!position) {
+            if (currentText.length > maxLength) {
+                textField.text = [currentText substringToIndex:maxLength];
+            } else {
+                textField.text = currentText;
+            }
         }
         
-        // 简体中文输入
-        if ([lang isEqualToString:@"zh-Hans"]) {
-            // 获取高亮部分
-            UITextRange *selectedRange = [textField markedTextRange];
-            UITextPosition *position = [textField positionFromPosition:selectedRange.start offset:0];
-            
-            // 没有高亮选择的字，则对已输入的文字进行字数统计和限制
-            if (!position) {
-                if (currentText.length > maxLength) {
-                    textField.text = [currentText substringToIndex:maxLength];
-                } else {
-                    textField.text = currentText;
-                }
-            }
-            
-        }
-        // 中文输入法以外的直接对其统计限制即可，不考虑其他语种情况
-        else {
-            if (currentText.length > maxLength) {
-                NSRange rangeIndex = [currentText rangeOfComposedCharacterSequenceAtIndex:maxLength];
-                if (rangeIndex.length == 1) {
-                    textField.text = [currentText substringToIndex:maxLength];
-                } else {
-                    NSRange rangeRange = [currentText rangeOfComposedCharacterSequencesForRange:NSMakeRange(0, maxLength)];
-                    textField.text = [currentText substringWithRange:rangeRange];
-                }
-            }
-        }
         if (self.textDidChanged) {
             self.textDidChanged(textField.text);
         }
@@ -96,6 +102,10 @@
     _contentType = contentType;
     if (contentType == NETextFieldContentTypeNumber) {
         [self setKeyboardType:UIKeyboardTypeNumberPad];
+    } else if (contentType == NETextFieldContentTypeToupper) {
+        [self setKeyboardType:UIKeyboardTypeDefault];
+    } else {
+        [self setKeyboardType:UIKeyboardTypeDefault];
     }
 }
 
@@ -124,10 +134,10 @@
             } else {
                 [self setValue:nil forKeyPath:keyPath];
             }
-        } @catch (NSException *exception) {
-            NSLog(@"%@", exception);
+                } @catch (NSException *exception) {
+                    NSLog(@"%@", exception);
+                }
         }
-    }
 }
 
 @end
