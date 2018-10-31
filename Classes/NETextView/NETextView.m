@@ -35,7 +35,8 @@
         
         if (!position) {
             BOOL flag = NO;
-            if (currentText.length > maxLength) {
+            
+            if (currentText.length > maxLength && maxLength > 0) {
                 textView.text = [currentText substringToIndex:maxLength];
                 flag = YES;
             }
@@ -55,30 +56,19 @@
     }
 }
 
-#pragma mark - Swizzle Dealloc
-+ (void)load {
-    // is this the best solution?
-    if ([self isMemberOfClass:[NETextView class]]) {
-        method_exchangeImplementations(class_getInstanceMethod(self.class, NSSelectorFromString(@"dealloc")),
-                                       class_getInstanceMethod(self.class, @selector(swizzledDealloc)));
-    }
-}
 
-- (void)swizzledDealloc {
-    if ([self isMemberOfClass:[NETextView class]]) {
-        [[NSNotificationCenter defaultCenter] removeObserver:self];
-        UILabel *label = objc_getAssociatedObject(self, @selector(placeholderLabel));
-        if (label) {
-            for (NSString *key in self.class.observingKeys) {
-                @try {
-                    [self removeObserver:self forKeyPath:key];
-                }
-                @catch (NSException *exception) {
-                    // Do nothing
-                }
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    UILabel *label = objc_getAssociatedObject(self, @selector(placeholderLabel));
+    if (label) {
+        for (NSString *key in self.class.observingKeys) {
+            @try {
+                [self removeObserver:self forKeyPath:key];
+            }
+            @catch (NSException *exception) {
+                // Do nothing
             }
         }
-        [self swizzledDealloc];
     }
 }
 
@@ -133,10 +123,10 @@
                                                  selector:@selector(updatePlaceholderLabel)
                                                      name:UITextViewTextDidChangeNotification
                                                    object:self];
-        
-        for (NSString *key in self.class.observingKeys) {
-            [self addObserver:self forKeyPath:key options:NSKeyValueObservingOptionNew context:nil];
-        }
+        //
+        //        for (NSString *key in self.class.observingKeys) {
+        //            [self addObserver:self forKeyPath:key options:NSKeyValueObservingOptionNew context:nil];
+        //        }
     }
     return _placeholderLabel;
 }
@@ -233,9 +223,9 @@
     
     CGFloat x = lineFragmentPadding + textContainerInset.left;
     CGFloat y = textContainerInset.top;
-    CGFloat width = CGRectGetWidth(self.bounds) - x - lineFragmentPadding - textContainerInset.right;
-    CGFloat height = [self.placeholderLabel sizeThatFits:CGSizeMake(width, 0)].height;
-    self.placeholderLabel.frame = CGRectMake(x, y, width, height);
+    //    CGFloat width = CGRectGetWidth(self.bounds) - x - lineFragmentPadding - textContainerInset.right;
+    [self.placeholderLabel sizeToFit];
+    self.placeholderLabel.frame = CGRectMake(x, y, CGRectGetWidth(self.placeholderLabel.frame), CGRectGetHeight(self.placeholderLabel.frame));
 }
 
 @end
