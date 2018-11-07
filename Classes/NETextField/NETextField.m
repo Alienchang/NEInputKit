@@ -40,6 +40,9 @@
         NSInteger maxLength    = self.limitedNumber;
         NSString *lang = [textField.textInputMode primaryLanguage];
 
+        if (self != textField) {
+            return;
+        }
         if (self.deleteBlankSpace) {
             currentText = [currentText stringByReplacingOccurrencesOfString:@" " withString:@""];
         }
