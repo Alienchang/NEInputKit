@@ -32,11 +32,10 @@
         if ([textView markedTextRange]) {
             position = [textView positionFromPosition:[textView markedTextRange].start offset:0];
         }
-        
+
         if (!position) {
             BOOL flag = NO;
-            
-            if (currentText.length > maxLength && maxLength > 0) {
+            if (currentText.length > maxLength) {
                 textView.text = [currentText substringToIndex:maxLength];
                 flag = YES;
             }
@@ -56,8 +55,14 @@
     }
 }
 
+#pragma mark - Swizzle Dealloc
++ (void)load {
+    // is this the best solution?
+    method_exchangeImplementations(class_getInstanceMethod(self.class, NSSelectorFromString(@"dealloc")),
+                                   class_getInstanceMethod(self.class, @selector(swizzledDealloc)));
+}
 
-- (void)dealloc {
+- (void)swizzledDealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     UILabel *label = objc_getAssociatedObject(self, @selector(placeholderLabel));
     if (label) {
@@ -70,6 +75,7 @@
             }
         }
     }
+    [self swizzledDealloc];
 }
 
 
@@ -123,10 +129,10 @@
                                                  selector:@selector(updatePlaceholderLabel)
                                                      name:UITextViewTextDidChangeNotification
                                                    object:self];
-        //
-        //        for (NSString *key in self.class.observingKeys) {
-        //            [self addObserver:self forKeyPath:key options:NSKeyValueObservingOptionNew context:nil];
-        //        }
+        
+        for (NSString *key in self.class.observingKeys) {
+            [self addObserver:self forKeyPath:key options:NSKeyValueObservingOptionNew context:nil];
+        }
     }
     return _placeholderLabel;
 }
@@ -223,9 +229,9 @@
     
     CGFloat x = lineFragmentPadding + textContainerInset.left;
     CGFloat y = textContainerInset.top;
-    //    CGFloat width = CGRectGetWidth(self.bounds) - x - lineFragmentPadding - textContainerInset.right;
-    [self.placeholderLabel sizeToFit];
-    self.placeholderLabel.frame = CGRectMake(x, y, CGRectGetWidth(self.placeholderLabel.frame), CGRectGetHeight(self.placeholderLabel.frame));
+    CGFloat width = CGRectGetWidth(self.bounds) - x - lineFragmentPadding - textContainerInset.right;
+    CGFloat height = [self.placeholderLabel sizeThatFits:CGSizeMake(width, 0)].height;
+    self.placeholderLabel.frame = CGRectMake(x, y, width, height);
 }
 
 @end

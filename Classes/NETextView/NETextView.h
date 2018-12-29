@@ -11,4 +11,13 @@
 @interface NETextView : UITextView
 @property (nonatomic ,copy)   void(^textLengthChanged)(NSInteger);
 @property (nonatomic ,assign) NSInteger limitedNumber;
+
+/**
+ placeholder
+ */
+@property (nonatomic, strong)   UILabel *placeholderLabel;
+@property (nonatomic, strong)   NSAttributedString     *attributedPlaceholder;
+@property (nonatomic, strong)   IBInspectable NSString *placeholder;
+@property (nonatomic, strong)   IBInspectable UIColor  *placeholderColor;
++ (UIColor *)defaultPlaceholderColor;
 @end
