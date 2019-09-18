@@ -34,15 +34,16 @@
 
 #pragma mark -- observer
 - (void)textFieldTextDidChange:(NSNotification *)notification {
-    if ([notification.object isMemberOfClass:[NETextField class]] && self == notification.object) {
+    if ([notification.object isKindOfClass:[NETextField class]]) {
         UITextField *textField = notification.object;
         NSString *currentText  = textField.text;
         NSInteger maxLength    = self.limitedNumber;
-
+        NSString *lang = [textField.textInputMode primaryLanguage];
+        
         if (self.deleteBlankSpace) {
             currentText = [currentText stringByReplacingOccurrencesOfString:@" " withString:@""];
         }
-
+        
         if (self.contentType == NETextFieldContentTypeNumber) {
             if (![self isPureInt:currentText]) {
                 textField.text = nil;
@@ -51,10 +52,30 @@
         } else if (self.contentType == NETextFieldContentTypeToupper) {
             currentText = [currentText uppercaseString];
         }
-
+        
+        // 中文输入
+        //        if ([lang containsString:@"zh-"]) {
+        //            // 获取高亮部分
+        //
+        //        }
+        //        // 中文输入法以外的直接对其统计限制即可，不考虑其他语种情况
+        //        else {
+        //            if (currentText.length > maxLength) {
+        //                NSRange rangeIndex = [currentText rangeOfComposedCharacterSequenceAtIndex:maxLength];
+        //                if (rangeIndex.length == 1) {
+        //                    textField.text = [currentText substringToIndex:maxLength];
+        //                } else {
+        //                    NSRange rangeRange = [currentText rangeOfComposedCharacterSequencesForRange:NSMakeRange(0, maxLength)];
+        //                    textField.text = [currentText substringWithRange:rangeRange];
+        //                }
+        //            } else {
+        //                textField.text = currentText;
+        //            }
+        //        }
+        
         UITextRange *selectedRange = [textField markedTextRange];
         UITextPosition *position = [textField positionFromPosition:selectedRange.start offset:0];
-
+        
         // 没有高亮选择的字，则对已输入的文字进行字数统计和限制
         if (!position) {
             if (currentText.length > maxLength) {
@@ -63,7 +84,7 @@
                 textField.text = currentText;
             }
         }
-
+        
         if (self.textDidChanged) {
             self.textDidChanged(textField.text);
         }
@@ -113,10 +134,10 @@
             } else {
                 [self setValue:nil forKeyPath:keyPath];
             }
-                } @catch (NSException *exception) {
-                    NSLog(@"%@", exception);
-                }
+        } @catch (NSException *exception) {
+            NSLog(@"%@", exception);
         }
+    }
 }
 
 @end
