@@ -123,19 +123,22 @@
 // 解决iOS 11.2 textfield内存泄漏问题
 - (void)didMoveToWindow {
     [super didMoveToWindow];
-    if (@available(iOS 11.2, *)) {
-        NSString *keyPath = @"textContentView.provider";
-        @try {
-            if (self.window) {
-                id provider = [self valueForKeyPath:keyPath];
-                if (!provider && self) {
-                    [self setValue:self forKeyPath:keyPath];
+    NSString *version = [UIDevice currentDevice].systemVersion;
+    if (version.doubleValue < 13.0) {
+        if (@available(iOS 11.2, *)) {
+            NSString *keyPath = @"textContentView.provider";
+            @try {
+                if (self.window) {
+                    id provider = [self valueForKeyPath:keyPath];
+                    if (!provider && self) {
+                        [self setValue:self forKeyPath:keyPath];
+                    }
+                } else {
+                    [self setValue:nil forKeyPath:keyPath];
                 }
-            } else {
-                [self setValue:nil forKeyPath:keyPath];
+            } @catch (NSException *exception) {
+                NSLog(@"%@", exception);
             }
-        } @catch (NSException *exception) {
-            NSLog(@"%@", exception);
         }
     }
 }
